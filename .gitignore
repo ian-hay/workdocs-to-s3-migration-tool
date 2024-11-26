@@ -1,0 +1,8 @@
+# Ignore AWS credentials and config files
+.aws
+.awscredentials
+.env
+*.log
+
+# Ignore venv
+venv/

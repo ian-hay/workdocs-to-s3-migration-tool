@@ -1,0 +1,83 @@
+# WorkDocs-to-S3 Sync Script
+
+## Overview
+
+This script synchronizes the contents of an Amazon WorkDocs folder with an Amazon S3 bucket. It ensures that files and folders in the WorkDocs folder are replicated to S3, while also removing any outdated or deleted files from S3. The script supports parallel execution for improved performance and retries operations in case of transient errors.
+
+---
+
+## Features
+- **WorkDocs to S3 synchronization**: Automatically transfers files and folders from WorkDocs to S3.
+- **Stale file cleanup**: Deletes files from S3 that no longer exist in the WorkDocs folder.
+- **Version checking**: Ensures files in S3 are up-to-date with the latest WorkDocs versions.
+- **Concurrency control**: Supports multi-threading for efficient file downloads and uploads.
+
+---
+
+## Prerequisites
+
+1. **AWS Credentials**: The script uses the default AWS credentials and configuration set up via the AWS CLI or environment variables.
+2. **Python Libraries**: Install the required libraries:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## Command-Line Arguments
+
+| Argument               | Description                                          | Default Value       |
+|------------------------|------------------------------------------------------|---------------------|
+| `--workdocs_folder_id` | The ID of the WorkDocs folder to synchronize.        | (Required)          |
+| `--s3_bucket_name`     | The name of the S3 bucket where files will be synced.| (Required)          |
+| `--region_name`        | The AWS region where WorkDocs and S3 are located.    | (Required)          |
+| `--max_pool_connections` | Max pool connections for AWS SDK.                  | 28                  |
+| `--max_workers`        | Maximum threads for file operations.                | 14                  |
+
+---
+
+## Usage
+
+Run the script using the command-line interface with the necessary arguments:
+
+```bash
+python folder_sync.py --workdocs_folder_id <WorkDocsFolderID> \
+                              --s3_bucket_name <S3BucketName> \
+                              --region_name <AWSRegion> \
+                              [--max_pool_connections <MaxPoolConnections>] \
+                              [--max_workers <MaxWorkers>]
+```
+
+### Example
+
+```bash
+python folder_sync.py --workdocs_folder_id "abcdef123456789" \
+                              --s3_bucket_name "my-s3-bucket" \
+                              --region_name "us-west-2" \
+                              --max_pool_connections 32 \
+                              --max_workers 16
+```
+
+---
+
+## Logging
+
+- **Log File**: Outputs detailed logs to `script.log`.
+- **Console Output**: Summarized logs for real-time monitoring.
+
+---
+
+## How It Works
+
+1. **List WorkDocs Contents**: Recursively retrieves files and folders from the specified WorkDocs folder.
+2. **Check S3 Versions**: Compares WorkDocs file versions with those stored in S3.
+3. **Download & Upload**: Streams files directly from WorkDocs to S3 if updates are needed.
+4. **Cleanup**: Deletes files from S3 that no longer exist in the WorkDocs folder.
+
+---
+
+## Troubleshooting
+
+1. **Permission Issues**: Ensure your AWS IAM role or user has sufficient permissions for both WorkDocs and S3 operations.
+2. **Network Errors**: Retry the operation; the script includes built-in retry logic for transient errors.
+3. **Logs**: Check `script.log` for detailed error messages and troubleshooting information.
